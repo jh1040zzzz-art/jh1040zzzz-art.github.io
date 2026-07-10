@@ -6,212 +6,40 @@
 <title>결핍과 문학</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --paper: #efe9df;
-    --ink: #1c1a17;
-    --ink-soft: #4a453e;
-    --void: #0e0d0b;
-    --gap-red: #9c3b2e;
-    --line: #c9c0b0;
-  }
-
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Noto Serif KR', serif;
-    line-height: 1.7;
-    overflow-x: hidden;
-  }
-
-  /* 배경 결 (종이 텍스처 느낌의 미세한 노이즈) */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.35;
-    background-image:
-      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.012) 3px),
-      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.012) 3px);
-  }
-
-  header {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 8vh 8vw;
-    z-index: 2;
-  }
-
-  .eyebrow {
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 0.85rem;
-    letter-spacing: 0.35em;
-    color: var(--ink-soft);
-    margin-bottom: 2.2rem;
-    opacity: 0;
-    animation: fadeUp 1s ease forwards 0.2s;
-  }
-
-  .title-block {
-    position: relative;
-  }
-
-  .title-line {
-    font-family: 'Nanum Myeongjo', serif;
-    font-weight: 800;
-    font-size: clamp(3.2rem, 11vw, 8.5rem);
-    line-height: 0.98;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-    opacity: 0;
-    animation: fadeUp 1.1s ease forwards;
-  }
+  :root { --paper: #efe9df; --ink: #1c1a17; --ink-soft: #4a453e; --void: #0e0d0b; --gap-red: #9c3b2e; --line: #c9c0b0; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Noto Serif KR', serif; line-height: 1.7; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.35; background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.012) 3px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.012) 3px); }
+  header { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 8vh 8vw; z-index: 2; }
+  .eyebrow { font-family: 'Nanum Myeongjo', serif; font-size: 0.85rem; letter-spacing: 0.35em; color: var(--ink-soft); margin-bottom: 2.2rem; opacity: 0; animation: fadeUp 1s ease forwards 0.2s; }
+  .title-block { position: relative; }
+  .title-line { font-family: 'Nanum Myeongjo', serif; font-weight: 800; font-size: clamp(3.2rem, 11vw, 8.5rem); line-height: 0.98; letter-spacing: -0.01em; color: var(--ink); opacity: 0; animation: fadeUp 1.1s ease forwards; }
   .title-line:nth-child(1) { animation-delay: 0.4s; }
-  .title-line:nth-child(2) {
-    animation-delay: 0.6s;
-    position: relative;
-  }
-
-  /* 시그니처 요소: "과" 글자 자리에 생긴 균열/간극 — 결핍을 시각화 */
-  .gap-char {
-    position: relative;
-    display: inline-block;
-    color: var(--gap-red);
-    font-weight: 300;
-    font-style: normal;
-  }
-  .gap-char::after {
-    content: '';
-    position: absolute;
-    left: -6%;
-    right: -6%;
-    top: 46%;
-    height: 1px;
-    background: var(--gap-red);
-    opacity: 0.55;
-    transform: scaleX(0);
-    transform-origin: left;
-    animation: crack 1.4s ease forwards 1.5s;
-  }
-
-  @keyframes crack {
-    to { transform: scaleX(1); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .tagline {
-    margin-top: 3rem;
-    max-width: 34ch;
-    font-family: 'Noto Serif KR', serif;
-    font-weight: 300;
-    font-size: 1.1rem;
-    color: var(--ink-soft);
-    opacity: 0;
-    animation: fadeUp 1s ease forwards 1s;
-  }
-
-  .scroll-hint {
-    position: absolute;
-    bottom: 6vh;
-    left: 8vw;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    color: var(--ink-soft);
-    opacity: 0;
-    animation: fadeUp 1s ease forwards 1.6s;
-  }
-
-  main {
-    position: relative;
-    z-index: 2;
-    background: var(--void);
-    color: var(--paper);
-  }
-
-  .section {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 14vh 8vw;
-    border-bottom: 1px solid rgba(239,233,223,0.12);
-  }
+  .title-line:nth-child(2) { animation-delay: 0.6s; position: relative; }
+  .gap-char { position: relative; display: inline-block; color: var(--gap-red); font-weight: 300; font-style: normal; }
+  .gap-char::after { content: ''; position: absolute; left: -6%; right: -6%; top: 46%; height: 1px; background: var(--gap-red); opacity: 0.55; transform: scaleX(0); transform-origin: left; animation: crack 1.4s ease forwards 1.5s; }
+  @keyframes crack { to { transform: scaleX(1); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  .tagline { margin-top: 3rem; max-width: 34ch; font-family: 'Noto Serif KR', serif; font-weight: 300; font-size: 1.1rem; color: var(--ink-soft); opacity: 0; animation: fadeUp 1s ease forwards 1s; }
+  .scroll-hint { position: absolute; bottom: 6vh; left: 8vw; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--ink-soft); opacity: 0; animation: fadeUp 1s ease forwards 1.6s; }
+  .archive-link { display: inline-block; margin-top: 2.2rem; font-family: 'Nanum Myeongjo', serif; font-size: 0.95rem; letter-spacing: 0.05em; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 0.2rem; opacity: 0; animation: fadeUp 1s ease forwards 1.3s; transition: opacity 0.3s ease, border-color 0.3s ease; width: fit-content; }
+  .archive-link:hover { border-color: var(--gap-red); color: var(--gap-red); }
+  main { position: relative; z-index: 2; background: var(--void); color: var(--paper); }
+  .section { max-width: 760px; margin: 0 auto; padding: 14vh 8vw; border-bottom: 1px solid rgba(239,233,223,0.12); }
   .section:last-child { border-bottom: none; }
-
-  .section-label {
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 0.8rem;
-    letter-spacing: 0.3em;
-    color: var(--gap-red);
-    margin-bottom: 1.4rem;
-  }
-
-  .section h2 {
-    font-family: 'Nanum Myeongjo', serif;
-    font-weight: 700;
-    font-size: clamp(1.6rem, 3.2vw, 2.3rem);
-    margin-bottom: 1.6rem;
-    line-height: 1.4;
-  }
-
-  .section p {
-    font-weight: 300;
-    font-size: 1.05rem;
-    color: rgba(239,233,223,0.82);
-    max-width: 56ch;
-  }
-
+  .section-label { font-family: 'Nanum Myeongjo', serif; font-size: 0.8rem; letter-spacing: 0.3em; color: var(--gap-red); margin-bottom: 1.4rem; }
+  .section h2 { font-family: 'Nanum Myeongjo', serif; font-weight: 700; font-size: clamp(1.6rem, 3.2vw, 2.3rem); margin-bottom: 1.6rem; line-height: 1.4; }
+  .section p { font-weight: 300; font-size: 1.05rem; color: rgba(239,233,223,0.82); max-width: 56ch; }
   .section p + p { margin-top: 1.2rem; }
-
-  .contribute-box {
-    margin-top: 1.6rem;
-    padding-top: 1.6rem;
-    border-top: 1px solid rgba(239,233,223,0.15);
-  }
-  .contribute-box:first-of-type {
-    margin-top: 2.5rem;
-  }
-
-  .contribute-box .label {
-    font-size: 0.9rem;
-    color: rgba(239,233,223,0.55);
-    letter-spacing: 0.05em;
-  }
-
-  .contribute-box .value {
-    font-family: 'Nanum Myeongjo', serif;
-    font-size: 1.2rem;
-    margin-top: 0.4rem;
-  }
-
-  footer {
-    background: var(--void);
-    color: rgba(239,233,223,0.4);
-    text-align: center;
-    padding: 5vh 8vw 6vh;
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
-    position: relative;
-    z-index: 2;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .eyebrow, .title-line, .tagline, .scroll-hint { animation: none; opacity: 1; }
-    .gap-char::after { animation: none; transform: scaleX(1); }
-  }
+  .contribute-box { margin-top: 1.6rem; padding-top: 1.6rem; border-top: 1px solid rgba(239,233,223,0.15); }
+  .contribute-box:first-of-type { margin-top: 2.5rem; }
+  .contribute-box .label { font-size: 0.9rem; color: rgba(239,233,223,0.55); letter-spacing: 0.05em; }
+  .contribute-box .value { font-family: 'Nanum Myeongjo', serif; font-size: 1.2rem; margin-top: 0.4rem; }
+  footer { background: var(--void); color: rgba(239,233,223,0.4); text-align: center; padding: 5vh 8vw 6vh; font-size: 0.8rem; letter-spacing: 0.1em; position: relative; z-index: 2; }
+  @media (prefers-reduced-motion: reduce) { .eyebrow, .title-line, .tagline, .scroll-hint { animation: none; opacity: 1; } .gap-char::after { animation: none; transform: scaleX(1); } }
 </style>
 </head>
 <body>
-
 <header>
   <div class="eyebrow">비정기 개인 문예지</div>
   <div class="title-block">
@@ -219,9 +47,9 @@
     <div class="title-line">문학</div>
   </div>
   <p class="tagline">가득 채워진 잔의 속이 비어있다.</p>
+  <a href="archive.html" class="archive-link">글방 바로가기 →</a>
   <div class="scroll-hint">↓ SCROLL</div>
 </header>
-
 <main>
   <section class="section">
     <div class="section-label">ABOUT</div>
@@ -229,7 +57,6 @@
     <p>온라인 개인 문예지.</p>
     <p>부담 없는 투고,<br>그리고 다작(多作)</p>
   </section>
-
   <section class="section">
     <div class="section-label">SUBMIT</div>
     <h2>투고</h2>
@@ -244,10 +71,8 @@
     </div>
   </section>
 </main>
-
 <footer>
   © 결핍과 문학 · lack-munhak.kro.kr
 </footer>
-
 </body>
 </html>

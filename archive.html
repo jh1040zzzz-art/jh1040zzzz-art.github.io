@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>글방 · 결핍과 문학</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --paper: #efe9df;
+    --ink: #1c1a17;
+    --ink-soft: #4a453e;
+    --void: #0e0d0b;
+    --gap-red: #9c3b2e;
+    --line: #c9c0b0;
+  }
+
+  body {
+    background: var(--void);
+    color: var(--paper);
+    font-family: 'Noto Serif KR', serif;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  .top {
+    padding: 6vh 8vw 2vh;
+    border-bottom: 1px solid rgba(239,233,223,0.12);
+  }
+
+  .back-link {
+    display: inline-block;
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    color: rgba(239,233,223,0.6);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color 0.3s ease;
+  }
+  .back-link:hover { color: var(--paper); }
+
+  .page-label {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    color: var(--gap-red);
+    margin-bottom: 1.2rem;
+  }
+
+  h1 {
+    font-family: 'Nanum Myeongjo', serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 7vw, 3.6rem);
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  .intro {
+    font-weight: 300;
+    font-size: 1.05rem;
+    color: rgba(239,233,223,0.7);
+    max-width: 50ch;
+    padding-bottom: 4vh;
+  }
+
+  .archive-list {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 8vh 8vw 14vh;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 10vh 4vw;
+    border: 1px dashed rgba(239,233,223,0.2);
+  }
+
+  .empty-state .mark {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 2.4rem;
+    color: var(--gap-red);
+    margin-bottom: 1.5rem;
+    opacity: 0.85;
+  }
+
+  .empty-state p {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--paper);
+    margin-bottom: 0.8rem;
+  }
+
+  .empty-state span {
+    display: block;
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 300;
+    font-size: 0.95rem;
+    color: rgba(239,233,223,0.55);
+  }
+
+  /* 나중에 월호가 생기면 이 안에 .issue-card 를 추가하면 됩니다 */
+  .issue-card {
+    display: block;
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(239,233,223,0.12);
+    text-decoration: none;
+    color: inherit;
+  }
+  .issue-card .issue-title {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--paper);
+  }
+  .issue-card .issue-date {
+    font-size: 0.85rem;
+    color: rgba(239,233,223,0.5);
+    margin-top: 0.4rem;
+  }
+
+  footer {
+    text-align: center;
+    padding: 5vh 8vw 6vh;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: rgba(239,233,223,0.35);
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a href="index.html" class="back-link">← 결핍과 문학</a>
+  <div class="page-label">ARCHIVE</div>
+  <h1>글방</h1>
+  <p class="intro">결핍과 문학의 모든 월호가 모이는 곳입니다.</p>
+</div>
+
+<div class="archive-list">
+  <div class="empty-state">
+    <div class="mark">·</div>
+    <p>창간 시 열립니다</p>
+    <span>첫 번째 월호가 발행되면 이곳에서 만나보실 수 있습니다.</span>
+  </div>
+
+  <!--
+    월호가 생기면 위 empty-state 블록을 지우고 아래처럼 추가하면 됩니다:
+
+    <a href="issue-2026-08.html" class="issue-card">
+      <div class="issue-title">2026년 8월호</div>
+      <div class="issue-date">창간호</div>
+    </a>
+  -->
+</div>
+
+<footer>
+  © 결핍과 문학 · lack-munhak.kro.kr
+</footer>
+
+</body>
+</html>

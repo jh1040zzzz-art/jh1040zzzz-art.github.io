@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 - 결핍과 문학</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --paper: #efe9df; --ink: #1c1a17; --ink-soft: #4a453e; --void: #0e0d0b; --gap-red: #9c3b2e; }
+  body { background: var(--void); color: var(--paper); font-family: 'Noto Serif KR', serif; min-height: 100vh; line-height: 1.7; }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 6vh 6vw 10vh; }
+
+  h1 { font-family: 'Nanum Myeongjo', serif; font-size: 1.6rem; margin-bottom: 0.4rem; }
+  .sub { font-size: 0.85rem; color: rgba(239,233,223,0.5); margin-bottom: 3rem; }
+
+  label { display: block; font-family: 'Nanum Myeongjo', serif; font-size: 0.85rem; letter-spacing: 0.05em; color: rgba(239,233,223,0.7); margin-bottom: 0.5rem; margin-top: 1.6rem; }
+
+  input[type=text], input[type=password], textarea, select {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(239,233,223,0.05);
+    border: 1px solid rgba(239,233,223,0.25);
+    color: var(--paper);
+    font-family: 'Noto Serif KR', serif;
+    font-size: 1rem;
+    outline: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--gap-red); }
+  textarea { min-height: 260px; resize: vertical; line-height: 1.8; }
+  select { appearance: none; cursor: pointer; }
+
+  button {
+    margin-top: 2.2rem;
+    padding: 0.9rem 2.2rem;
+    background: var(--gap-red);
+    border: none;
+    color: var(--paper);
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  button:hover { opacity: 0.85; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .status { margin-top: 1.2rem; font-size: 0.9rem; }
+  .status.ok { color: #8fae7a; }
+  .status.err { color: var(--gap-red); }
+
+  .token-box {
+    margin-bottom: 3rem;
+    padding: 1.4rem;
+    border: 1px dashed rgba(239,233,223,0.25);
+  }
+  .token-box p { font-size: 0.85rem; color: rgba(239,233,223,0.55); margin-bottom: 0.8rem; }
+  .token-saved { font-size: 0.85rem; color: #8fae7a; }
+
+  .post-list { margin-top: 4rem; border-top: 1px solid rgba(239,233,223,0.15); padding-top: 2rem; }
+  .post-item { display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 0; border-bottom: 1px solid rgba(239,233,223,0.1); font-size: 0.9rem; }
+  .post-item .room-tag { font-size: 0.75rem; color: rgba(239,233,223,0.4); margin-left: 0.6rem; }
+  .post-item button.del { background: transparent; border: 1px solid rgba(239,233,223,0.3); padding: 0.3rem 0.7rem; font-size: 0.75rem; margin: 0; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>관리자 · 글쓰기</h1>
+  <div class="sub">이 페이지 주소는 아무에게도 공유하지 마세요.</div>
+
+  <div class="token-box" id="token-box">
+    <p>최초 1회, GitHub Personal Access Token을 입력하세요. 이 브라우저에만 저장되며 서버로 전송되지 않습니다.</p>
+    <input type="password" id="token-input" placeholder="github_pat_...">
+    <button onclick="saveToken()">저장</button>
+    <div id="token-status"></div>
+  </div>
+
+  <div id="form-area" style="display:none;">
+    <label>올릴 곳</label>
+    <select id="room-select">
+      <option value="outside">공식 간행물 외</option>
+    </select>
+
+    <label>제목</label>
+    <input type="text" id="title-input" placeholder="글 제목">
+
+    <label>글쓴이 (선택)</label>
+    <input type="text" id="author-input" placeholder="이름 또는 필명">
+
+    <label>내용</label>
+    <textarea id="content-input" placeholder="여기에 글을 붙여넣거나 작성하세요"></textarea>
+
+    <button onclick="publishPost()" id="publish-btn">발행하기</button>
+    <div class="status" id="publish-status"></div>
+
+    <div class="post-list" id="post-list"></div>
+  </div>
+</div>
+
+<script>
+  const OWNER = "jh1040zzzz-art";
+  const REPO = "jh1040zzzz-art.github.io";
+  const FILE_PATH = "posts.json";
+
+  function getToken() { return localStorage.getItem('gh_token') || ''; }
+
+  function saveToken() {
+    const t = document.getElementById('token-input').value.trim();
+    if (!t) return;
+    localStorage.setItem('gh_token', t);
+    document.getElementById('token-status').innerHTML = '<div class="token-saved">저장됨</div>';
+    document.getElementById('form-area').style.display = 'block';
+    loadPosts();
+  }
+
+  window.onload = function() {
+    if (getToken()) {
+      document.getElementById('form-area').style.display = 'block';
+      loadPosts();
+    }
+  };
+
+  async function githubRequest(method, body) {
+    const token = getToken();
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`;
+    const opts = {
+      method: method,
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github+json'
+      }
+    };
+    if (body) {
+      opts.body = JSON.stringify(body);
+    }
+    const res = await fetch(url, opts);
+    return res;
+  }
+
+  async function getCurrentPosts() {
+    const res = await githubRequest('GET');
+    if (!res.ok) throw new Error('불러오기 실패: ' + res.status);
+    const data = await res.json();
+    const content = decodeURIComponent(escape(atob(data.content)));
+    return { posts: JSON.parse(content), sha: data.sha };
+  }
+
+  async function savePosts(posts, sha, message) {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2))));
+    const res = await githubRequest('PUT', {
+      message: message,
+      content: content,
+      sha: sha
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || '저장 실패');
+    }
+    return res.json();
+  }
+
+  async function loadPosts() {
+    const listEl = document.getElementById('post-list');
+    listEl.innerHTML = '불러오는 중...';
+    try {
+      const { posts } = await getCurrentPosts();
+      if (posts.length === 0) {
+        listEl.innerHTML = '<p style="color:rgba(239,233,223,0.4); font-size:0.85rem;">아직 올린 글이 없습니다.</p>';
+        return;
+      }
+      listEl.innerHTML = '';
+      posts.slice().reverse().forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'post-item';
+        div.innerHTML = `
+          <span>${escapeHtml(p.title)} <span class="room-tag">${roomLabel(p.room)}</span></span>
+          <button class="del" onclick="deletePost('${p.id}')">삭제</button>
+        `;
+        listEl.appendChild(div);
+      });
+    } catch (e) {
+      listEl.innerHTML = '<p class="status err">' + e.message + '</p>';
+    }
+  }
+
+  function roomLabel(room) {
+    if (room === 'outside') return '공식 간행물 외';
+    return room;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function publishPost() {
+    const title = document.getElementById('title-input').value.trim();
+    const author = document.getElementById('author-input').value.trim();
+    const content = document.getElementById('content-input').value.trim();
+    const room = document.getElementById('room-select').value;
+    const statusEl = document.getElementById('publish-status');
+    const btn = document.getElementById('publish-btn');
+
+    if (!title || !content) {
+      statusEl.className = 'status err';
+      statusEl.textContent = '제목과 내용을 입력하세요.';
+      return;
+    }
+
+    btn.disabled = true;
+    statusEl.className = 'status';
+    statusEl.textContent = '발행 중...';
+
+    try {
+      const { posts, sha } = await getCurrentPosts();
+      const newPost = {
+        id: Date.now().toString(),
+        title: title,
+        author: author,
+        content: content,
+        room: room,
+        date: new Date().toISOString().slice(0, 10)
+      };
+      posts.push(newPost);
+      await savePosts(posts, sha, `Add post: ${title}`);
+      statusEl.className = 'status ok';
+      statusEl.textContent = '발행 완료! 몇 분 내로 사이트에 반영됩니다.';
+      document.getElementById('title-input').value = '';
+      document.getElementById('author-input').value = '';
+      document.getElementById('content-input').value = '';
+      loadPosts();
+    } catch (e) {
+      statusEl.className = 'status err';
+      statusEl.textContent = '오류: ' + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function deletePost(id) {
+    if (!confirm('이 글을 삭제할까요?')) return;
+    try {
+      const { posts, sha } = await getCurrentPosts();
+      const filtered = posts.filter(p => p.id !== id);
+      await savePosts(filtered, sha, `Delete post: ${id}`);
+      loadPosts();
+    } catch (e) {
+      alert('삭제 실패: ' + e.message);
+    }
+  }
+</script>
+
+</body>
+</html>

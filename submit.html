@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>투고 · 결핍과 문학</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --paper: #efe9df; --ink: #1c1a17; --void: #0e0d0b; --gap-red: #9c3b2e; --gap-red-soft: #c96b57; --line: rgba(239,233,223,0.18); }
+  body { background: var(--void); color: var(--paper); font-family: 'Noto Serif KR', serif; min-height: 100vh; }
+
+  main {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 8vh 8vw 10vh;
+  }
+  h1 {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 1.7rem;
+    margin-bottom: 0.5rem;
+  }
+  .sub {
+    font-weight: 300;
+    font-size: 0.9rem;
+    color: rgba(239,233,223,0.5);
+    margin-bottom: 3rem;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 0.9rem;
+    background: transparent;
+    border: none;
+    color: rgba(239,233,223,0.4);
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active {
+    color: var(--paper);
+    border-bottom-color: var(--gap-red);
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: rgba(239,233,223,0.6);
+    margin: 1.2rem 0 0.5rem;
+  }
+  label:first-of-type { margin-top: 0; }
+  input[type="text"], input[type="password"], textarea {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    background: rgba(239,233,223,0.05);
+    border: 1px solid var(--line);
+    color: var(--paper);
+    font-family: 'Noto Serif KR', serif;
+    font-size: 0.95rem;
+    outline: none;
+  }
+  input:focus, textarea:focus { border-color: var(--gap-red-soft); }
+  textarea { min-height: 220px; resize: vertical; line-height: 1.7; }
+
+  button.primary {
+    margin-top: 1.6rem;
+    width: 100%;
+    padding: 1rem;
+    background: var(--gap-red);
+    border: none;
+    color: #fff;
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  button.primary:hover { background: #82301f; }
+  button.primary:disabled { background: #5a2d26; cursor: not-allowed; }
+
+  .msg {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+  }
+  .msg.err { color: var(--gap-red-soft); }
+  .msg.ok { color: #7fae7f; }
+
+  .panel { display: none; }
+  .panel.show { display: block; }
+
+  .user-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--line);
+    margin-bottom: 2.5rem;
+    font-size: 0.9rem;
+  }
+  .user-bar .tier-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    margin-left: 8px;
+    border: 1px solid var(--line);
+    color: rgba(239,233,223,0.6);
+  }
+  .user-bar .tier-badge.trusted { border-color: #3a5c3f; color: #7fae7f; }
+  .logout-link {
+    color: rgba(239,233,223,0.5);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+  .logout-link:hover { color: var(--paper); }
+
+  .blocked-box {
+    border: 1px solid var(--gap-red);
+    background: rgba(156,59,46,0.1);
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: rgba(239,233,223,0.8);
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <h1>투고하기</h1>
+  <p class="sub">투고된 글은 검토 후 "공식 간행물 외"에 게시됩니다.</p>
+
+  <!-- 로그인 전 -->
+  <div id="auth-panel">
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-login">로그인</button>
+      <button class="tab-btn" id="tab-signup">회원가입</button>
+    </div>
+
+    <div class="panel show" id="login-panel">
+      <label for="login-username">아이디</label>
+      <input type="text" id="login-username" autocomplete="off">
+      <label for="login-password">비밀번호</label>
+      <input type="password" id="login-password">
+      <button class="primary" id="login-btn">로그인</button>
+      <div class="msg" id="login-msg"></div>
+    </div>
+
+    <div class="panel" id="signup-panel">
+      <label for="signup-username">아이디</label>
+      <input type="text" id="signup-username" autocomplete="off">
+      <label for="signup-password">비밀번호</label>
+      <input type="password" id="signup-password">
+      <label for="signup-password-confirm">비밀번호 확인</label>
+      <input type="password" id="signup-password-confirm">
+      <button class="primary" id="signup-btn">회원가입</button>
+      <div class="msg" id="signup-msg"></div>
+    </div>
+  </div>
+
+  <!-- 로그인 후 -->
+  <div id="submit-panel" class="panel">
+    <div class="user-bar">
+      <span id="user-bar-text"></span>
+      <button class="logout-link" id="logout-btn">로그아웃</button>
+    </div>
+
+    <div id="blocked-box" class="blocked-box" style="display:none;">
+      이 계정은 투고가 제한되어 있습니다.
+    </div>
+
+    <div id="submit-form-area">
+      <label for="post-title">제목</label>
+      <input type="text" id="post-title">
+      <label for="post-author">필명 (선택, 비워두면 아이디로 표시)</label>
+      <input type="text" id="post-author">
+      <label for="post-content">내용</label>
+      <textarea id="post-content" placeholder="여기에 글을 작성하세요"></textarea>
+      <button class="primary" id="submit-post-btn">투고하기</button>
+      <div class="msg" id="submit-msg"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // ⚠️ 이 리포지토리 전용, Contents 읽기/쓰기 권한만 가진 fine-grained 토큰으로 교체하세요.
+  const SUBMIT_TOKEN = "PASTE_YOUR_FINE_GRAINED_TOKEN_HERE";
+
+  const REPO_OWNER = "jh1040zzzz-art";
+  const REPO_NAME = "jh1040zzzz-art.github.io";
+  const ACCOUNTS_API = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/accounts.json`;
+  const SUBMISSIONS_API = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/submissions.json`;
+
+  async function ghGet(url){
+    const res = await fetch(url, {
+      headers: {
+        'Authorization': `token ${SUBMIT_TOKEN}`,
+        'Accept': 'application/vnd.github+json'
+      }
+    });
+    if(res.status === 404) return null;
+    if(!res.ok) throw new Error('FETCH_FAILED_' + res.status);
+    return res.json();
+  }
+
+  async function ghPut(url, contentObj, sha, message){
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(contentObj, null, 2))));
+    const body = { message, content: encoded };
+    if(sha) body.sha = sha;
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${SUBMIT_TOKEN}`,
+        'Accept': 'application/vnd.github+json'
+      },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok) throw new Error('SAVE_FAILED_' + res.status);
+    return res.json();
+  }
+
+  function decodeContent(data){
+    if(!data) return { list: [], sha: null };
+    const content = decodeURIComponent(escape(atob(data.content)));
+    return { list: JSON.parse(content || '[]'), sha: data.sha };
+  }
+
+  async function fetchAccounts(){
+    const data = await ghGet(ACCOUNTS_API);
+    return decodeContent(data);
+  }
+  async function saveAccounts(accounts, sha, message){
+    return ghPut(ACCOUNTS_API, accounts, sha, message);
+  }
+  async function fetchSubmissions(){
+    const data = await ghGet(SUBMISSIONS_API);
+    return decodeContent(data);
+  }
+  async function saveSubmissions(subs, sha, message){
+    return ghPut(SUBMISSIONS_API, subs, sha, message);
+  }
+
+  async function hashPassword(username, password){
+    const enc = new TextEncoder();
+    const data = enc.encode('gyeolmun_salt::' + username.toLowerCase() + '::' + password);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  // ---------- 탭 전환 ----------
+  const tabLogin = document.getElementById('tab-login');
+  const tabSignup = document.getElementById('tab-signup');
+  const loginPanel = document.getElementById('login-panel');
+  const signupPanel = document.getElementById('signup-panel');
+
+  tabLogin.addEventListener('click', () => {
+    tabLogin.classList.add('active'); tabSignup.classList.remove('active');
+    loginPanel.classList.add('show'); signupPanel.classList.remove('show');
+  });
+  tabSignup.addEventListener('click', () => {
+    tabSignup.classList.add('active'); tabLogin.classList.remove('active');
+    signupPanel.classList.add('show'); loginPanel.classList.remove('show');
+  });
+
+  // ---------- 회원가입 ----------
+  document.getElementById('signup-btn').addEventListener('click', async () => {
+    const username = document.getElementById('signup-username').value.trim();
+    const pw = document.getElementById('signup-password').value;
+    const pwConfirm = document.getElementById('signup-password-confirm').value;
+    const msg = document.getElementById('signup-msg');
+
+    if(!username || !pw){
+      msg.textContent = '아이디와 비밀번호를 입력해주세요.';
+      msg.className = 'msg err';
+      return;
+    }
+    if(pw.length < 4){
+      msg.textContent = '비밀번호는 4자 이상이어야 합니다.';
+      msg.className = 'msg err';
+      return;
+    }
+    if(pw !== pwConfirm){
+      msg.textContent = '비밀번호가 일치하지 않습니다.';
+      msg.className = 'msg err';
+      return;
+    }
+
+    msg.textContent = '확인 중…';
+    msg.className = 'msg';
+    try{
+      const { list: accounts, sha } = await fetchAccounts();
+      if(accounts.find(a => a.username.toLowerCase() === username.toLowerCase())){
+        msg.textContent = '이미 사용 중인 아이디입니다.';
+        msg.className = 'msg err';
+        return;
+      }
+      const passwordHash = await hashPassword(username, pw);
+      accounts.push({
+        username,
+        passwordHash,
+        tier: 'normal',
+        createdAt: new Date().toISOString()
+      });
+      await saveAccounts(accounts, sha, `회원가입: ${username}`);
+
+      msg.textContent = '가입 완료! 로그인해주세요.';
+      msg.className = 'msg ok';
+      tabLogin.click();
+      document.getElementById('login-username').value = username;
+    }catch(err){
+      msg.textContent = `가입 실패 (${err.message})`;
+      msg.className = 'msg err';
+    }
+  });
+
+  // ---------- 로그인 ----------
+  document.getElementById('login-btn').addEventListener('click', async () => {
+    await doLogin();
+  });
+
+  async function doLogin(){
+    const username = document.getElementById('login-username').value.trim();
+    const pw = document.getElementById('login-password').value;
+    const msg = document.getElementById('login-msg');
+
+    if(!username || !pw){
+      msg.textContent = '아이디와 비밀번호를 입력해주세요.';
+      msg.className = 'msg err';
+      return;
+    }
+    msg.textContent = '확인 중…';
+    msg.className = 'msg';
+    try{
+      const { list: accounts } = await fetchAccounts();
+      const acc = accounts.find(a => a.username.toLowerCase() === username.toLowerCase());
+      if(!acc){
+        msg.textContent = '존재하지 않는 아이디입니다.';
+        msg.className = 'msg err';
+        return;
+      }
+      const hash = await hashPassword(acc.username, pw);
+      if(hash !== acc.passwordHash){
+        msg.textContent = '비밀번호가 틀렸습니다.';
+        msg.className = 'msg err';
+        return;
+      }
+      localStorage.setItem('gyeolmun_submitter', acc.username);
+      enterSubmitView(acc);
+    }catch(err){
+      msg.textContent = `로그인 실패 (${err.message})`;
+      msg.className = 'msg err';
+    }
+  }
+
+  document.getElementById('login-password').addEventListener('keydown', e => {
+    if(e.key === 'Enter') doLogin();
+  });
+
+  // ---------- 로그아웃 ----------
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('gyeolmun_submitter');
+    document.getElementById('submit-panel').classList.remove('show');
+    document.getElementById('auth-panel').style.display = 'block';
+    document.getElementById('login-username').value = '';
+    document.getElementById('login-password').value = '';
+  });
+
+  // ---------- 화면 전환 ----------
+  function enterSubmitView(acc){
+    document.getElementById('auth-panel').style.display = 'none';
+    document.getElementById('submit-panel').classList.add('show');
+
+    const tierBadge = acc.tier === 'trusted' ? '<span class="tier-badge trusted">연재작가</span>' : '';
+    document.getElementById('user-bar-text').innerHTML = `${escapeHtml(acc.username)}님${tierBadge}`;
+
+    if(acc.tier === 'blocked'){
+      document.getElementById('blocked-box').style.display = 'block';
+      document.getElementById('submit-form-area').style.display = 'none';
+    }else{
+      document.getElementById('blocked-box').style.display = 'none';
+      document.getElementById('submit-form-area').style.display = 'block';
+    }
+  }
+
+  // ---------- 페이지 로드시 자동 로그인 확인 ----------
+  window.addEventListener('DOMContentLoaded', async () => {
+    const saved = localStorage.getItem('gyeolmun_submitter');
+    if(!saved) return;
+    try{
+      const { list: accounts } = await fetchAccounts();
+      const acc = accounts.find(a => a.username === saved);
+      if(!acc){
+        localStorage.removeItem('gyeolmun_submitter');
+        return;
+      }
+      enterSubmitView(acc);
+    }catch(err){
+      // 네트워크 실패시 그냥 로그인 화면 유지
+    }
+  });
+
+  // ---------- 투고 ----------
+  document.getElementById('submit-post-btn').addEventListener('click', async () => {
+    const title = document.getElementById('post-title').value.trim();
+    const author = document.getElementById('post-author').value.trim();
+    const content = document.getElementById('post-content').value.trim();
+    const msg = document.getElementById('submit-msg');
+    const username = localStorage.getItem('gyeolmun_submitter');
+
+    if(!username){
+      msg.textContent = '로그인이 필요합니다.';
+      msg.className = 'msg err';
+      return;
+    }
+    if(!title || !content){
+      msg.textContent = '제목과 내용을 입력해주세요.';
+      msg.className = 'msg err';
+      return;
+    }
+
+    const btn = document.getElementById('submit-post-btn');
+    btn.disabled = true;
+    msg.textContent = '투고 중…';
+    msg.className = 'msg';
+
+    try{
+      // 최신 계정 상태로 다시 한번 차단 여부 확인
+      const { list: accounts } = await fetchAccounts();
+      const acc = accounts.find(a => a.username === username);
+      if(!acc){
+        msg.textContent = '계정 정보를 확인할 수 없습니다. 다시 로그인해주세요.';
+        msg.className = 'msg err';
+        return;
+      }
+      if(acc.tier === 'blocked'){
+        enterSubmitView(acc);
+        return;
+      }
+
+      const { list: subs, sha } = await fetchSubmissions();
+      subs.push({
+        id: (crypto.randomUUID ? crypto.randomUUID() : ('s_' + Date.now())),
+        username,
+        title,
+        author,
+        content,
+        room: 'outside',
+        submittedAt: new Date().toISOString()
+      });
+      await saveSubmissions(subs, sha, `투고: ${title}`);
+
+      msg.textContent = '투고 완료! 관리자 검토 후 게시됩니다.';
+      msg.className = 'msg ok';
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-author').value = '';
+      document.getElementById('post-content').value = '';
+    }catch(err){
+      msg.textContent = `투고 실패 (${err.message})`;
+      msg.className = 'msg err';
+    }finally{
+      btn.disabled = false;
+    }
+  });
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+</script>
+
+</body>
+</html>
